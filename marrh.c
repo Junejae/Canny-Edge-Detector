@@ -7,7 +7,7 @@
          double outpic1[PICSIZE][PICSIZE];
          double outpic2[PICSIZE][PICSIZE];
          int    edgeflag[PICSIZE][PICSIZE];
-         double mask[MAXMASK][MAXMASK];
+         double mask[MAXMASK][MAXMASK]; // need to be doubled for x and y
          double conv[PICSIZE][PICSIZE];
 
 main(argc,argv)
@@ -50,6 +50,8 @@ char **argv;
                 }
         }
 
+        // change derivative to first derivative
+        // also, double it for x and y mask
         for (p=-mr;p<=mr;p++)
         {  for (q=-mr;q<=mr;q++)
            {
@@ -58,7 +60,8 @@ char **argv;
               (mask[p+centy][q+centx]) = maskval;
            }
         }
-
+        
+        // also, double it up for x and y mask
         for (i=mr;i<=255-mr;i++)
         { for (j=mr;j<=255-mr;j++)
           {
@@ -74,6 +77,8 @@ char **argv;
              conv[i][j] = sum;
           }
         }
+
+        // bring the sqrt code from sobel.c to calculat the magnitude
 
         maxval  = 0;
         maxival = 0;
