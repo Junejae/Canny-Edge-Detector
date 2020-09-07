@@ -4,7 +4,6 @@
 
 #include <stdio.h>                  /*  Marr-Hildreth.c  (or marrh.c) */
 #include <math.h>
-#include <stdlib.h> // added to use atoi()
 
 #define  PICSIZE 256
 #define  MAXMASK 100
@@ -15,6 +14,7 @@
          double yconv[PICSIZE][PICSIZE];
          int    edgeflag[PICSIZE][PICSIZE];
          int    peak[PICSIZE][PICSIZE];
+         int    hist[256];
          double maskx[MAXMASK][MAXMASK];
          double masky[MAXMASK][MAXMASK];
          double mag[PICSIZE][PICSIZE];
@@ -24,7 +24,7 @@ int argc;
 char **argv;
 {
         int     i,j,p,q,mr,centx,centy,hi,lo,moretodo;
-        double  maskval,sumx,sumy,sig,maxival,slope;
+        double  maskval,sumx,sumy,sig,maxival,slope,percent,cutoff,areaOfTops;
         FILE    *fo1, *fo2, *fo3, *fp1, *fopen();
         char    *foobar;
 
@@ -32,17 +32,11 @@ char **argv;
         foobar = *argv;
         fp1=fopen(foobar,"rb"); // for original image
 
-        argc--; argv++;
-        foobar = *argv;
-        fo1=fopen(foobar,"wb"); // for magnitude image
+        fo1=fopen("magnitude.pgm","wb"); // for magnitude image
 
-        argc--; argv++;
-        foobar = *argv;
-        fo2=fopen(foobar,"wb"); // for peak image
+        fo2=fopen("peaks.pgm","wb"); // for peak image
 
-        argc--; argv++;
-        foobar = *argv;
-        fo3=fopen(foobar,"wb"); // for final image
+        fo3=fopen("Final Edges.pgm","wb"); // for final image
 
         sig = 1.0; // sig should be 1 in this assignment
 
@@ -180,11 +174,33 @@ char **argv;
           }
         }
 
+        // declare hi and lo value
+        percent = 0.045;
+        cutoff = percent*PICSIZE*PICSIZE;
+        areaOfTops = 0;
+
+        for(i=0;i<256;i++)
+        { for(j=0;j<256;j++)
+          {
+            (hist[(int)(mag[i][j])])++;
+          }
+        }
+
+        for (i=255;i>0;i--)
+        {
+          areaOfTops += hist[i];
+
+          if (areaOfTops > cutoff) break;
+        }
+
+        hi = i;
+        lo = .35*hi;
+
+        printf("HI: %d, LO: %d\n", hi, lo);
+
+
         printf("Producing final image...\n");
         // produce final image
-        hi = 100;
-        lo = 35;
-
         for(i=0;i<256;i++)
         { for(j=0;j<256;j++)
           {
