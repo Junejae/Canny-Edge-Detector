@@ -23,7 +23,7 @@ int main(argc,argv)
 int argc;
 char **argv;
 {
-        int     i,j,p,q,mr,centx,centy;
+        int     i,j,p,q,mr,centx,centy,hi,lo,moretodo;
         double  maskval,sumx,sumy,sig,maxival,slope;
         FILE    *fo1, *fo2, *fo3, *fp1, *fopen();
         char    *foobar;
@@ -40,11 +40,9 @@ char **argv;
         foobar = *argv;
         fo2=fopen(foobar,"wb"); // for peak image
 
-        /* 
         argc--; argv++;
         foobar = *argv;
-        fo2=fopen(foobar,"wb"); // for final image
-         */
+        fo3=fopen(foobar,"wb"); // for final image
 
         sig = 1.0; // sig should be 1 in this assignment
 
@@ -100,7 +98,7 @@ char **argv;
           }
         }
 
-        // bring the sqrt code from sobel.c to calculat the magnitude
+        // bring the sqrt code from sobel.c to calculate the magnitude
         maxival = 0.0;
         for (i=mr;i<256-mr;i++)
         { for (j=mr;j<256-mr;j++)
@@ -121,6 +119,10 @@ char **argv;
         fprintf(fo2, "%d %d\n", PICSIZE, PICSIZE);
         fprintf(fo2, "%d\n", 255);
 
+        fprintf(fo3, "P5\n");
+        fprintf(fo3, "%d %d\n", PICSIZE, PICSIZE);
+        fprintf(fo3, "%d\n", 255);
+
         printf("Producing magnitude image...\n");
         // produce mag image
         for (i=0;i<256;i++)
@@ -132,9 +134,7 @@ char **argv;
         }
 
         printf("Producing peak image...\n");
-
         // produce peak image
-        
         for(i=mr;i<256-mr;i++){
           for(j=mr;j<256-mr;j++){
             
@@ -180,11 +180,68 @@ char **argv;
           }
         }
 
+        printf("Producing final image...\n");
+        // produce final image
+        hi = 100;
+        lo = 35;
+
+        for(i=0;i<256;i++)
+        { for(j=0;j<256;j++)
+          {
+            if (peak[i][j] == 255)
+            {
+              if (mag[i][j] > hi)
+              {
+                peak[i][j] = 0;
+                edgeflag[i][j] = 255;
+              }
+              else if (mag[i][j] < lo)
+              {
+                peak[i][j] = 0;
+                edgeflag[i][j] = 0;
+              }
+            }
+          }
+        }
+        
+        moretodo = 1;
+        while (moretodo == 1)
+        {
+          moretodo = 0;
+          for(i=0;i<256;i++)
+          { for(j=0;j<256;j++)
+            {
+              if (peak[i][j] == 255)
+              {
+                for (p=-1;p<=1;p++)
+                { for (q=-1;q<=1;q++)
+                  {
+                    if (edgeflag[i+p][j+q] == 255)
+                    {
+                      peak[i][j] = 0;
+                      edgeflag[i][j] = 255;
+                      moretodo = 1;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        for (i=0;i<256;i++)
+        { for (j=0;j<256;j++)
+          {
+            fprintf(fo3,"%c",(char) ((edgeflag[i][j] == 255) ? 255 : 0));
+          }
+        }
+        
 
         // close files
         fclose(fp1);
         fclose(fo1);
         fclose(fo2);
+        fclose(fo3);
         
         return 0;
 }
