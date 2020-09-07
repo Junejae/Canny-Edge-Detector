@@ -62,7 +62,7 @@ int main(int argc, char **argv)
     {
         percentage = (int)( 100*((double)counter / (PICSIZE*PICSIZE)));
 
-        printf("They are %d percent different!\n", percentage);
+        printf("Difference: %d ; They are %d percent different!\n", counter, percentage);
     }
 
     return 0;
