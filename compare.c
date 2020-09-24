@@ -9,7 +9,7 @@
 
 int main(int argc, char **argv)
 {
-    int     i,j,counter,percentage;
+    int     i,j,counter;
     FILE    *f1, *f2, *fopen();
     char    *foobar;
 
@@ -60,9 +60,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        percentage = (int)( 100*((double)counter / (PICSIZE*PICSIZE)));
-
-        printf("Difference: %d ; They are %d percent different!\n", counter, percentage);
+        printf("Difference: %d pixels \n", counter);
     }
 
     return 0;
